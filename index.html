@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXORHUB - WebHub</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --primary-hover: #0077ed;
+            --text-primary: #f5f5f7;
+            --text-secondary: #a1a1a6;
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2c2c2e;
+            --bg-tertiary: #3a3a3c;
+            --card-bg: #2c2c2e;
+            --card-hover: #3a3a3c;
+            --success: #30d158;
+            --warning: #ff9f0a;
+            --danger: #ff453a;
+            --border-radius: 12px;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        [data-theme="light"] {
+            --primary-color: #0071e3;
+            --primary-hover: #0062c4;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --bg-primary: #f5f5f7;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #e5e5ea;
+            --card-bg: #ffffff;
+            --card-hover: #f5f5f7;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            transition: var(--transition);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            padding: 1.5rem 2rem;
+            background-color: var(--bg-secondary);
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .logo i {
+            font-size: 1.8rem;
+        }
+
+        .theme-toggle {
+            background: var(--bg-tertiary);
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-primary);
+            transition: var(--transition);
+        }
+
+        .theme-toggle:hover {
+            background: var(--bg-secondary);
+        }
+
+        main {
+            flex: 1;
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem 0;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .hero p {
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin: 0 auto;
+            font-size: 1.1rem;
+        }
+
+        .filter-controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 20px;
+            border: none;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .filter-btn.active {
+            background: var(--primary-color);
+        }
+
+        .filter-btn:hover:not(.active) {
+            background: var(--bg-secondary);
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .project-card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .project-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            background: var(--card-hover);
+        }
+
+        .card-header {
+            position: relative;
+            height: 160px;
+            overflow: hidden;
+        }
+
+        .card-header img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: var(--transition);
+        }
+
+        .project-card:hover .card-header img {
+            transform: scale(1.05);
+        }
+
+        .status-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-new {
+            background: var(--primary-color);
+        }
+
+        .status-wip {
+            background: var(--warning);
+        }
+
+        .status-completed {
+            background: var(--success);
+        }
+
+        .card-body {
+            padding: 1.5rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-body h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-body p {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            flex: 1;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 1.5rem 1.5rem;
+        }
+
+        .visit-btn {
+            padding: 0.5rem 1.25rem;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .visit-btn:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+
+        .tags {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            padding: 0.25rem 0.75rem;
+            background: var(--bg-tertiary);
+            border-radius: 20px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        footer {
+            background: var(--bg-secondary);
+            padding: 2rem;
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        .footer-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .footer-content p {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .social-links a {
+            color: var(--text-secondary);
+            font-size: 1.25rem;
+            transition: var(--transition);
+        }
+
+        .social-links a:hover {
+            color: var(--primary-color);
+        }
+
+        .copyright {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .projects-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+            
+            .filter-controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .filter-btn {
+                width: 100%;
+                max-width: 250px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header {
+                padding: 1rem;
+            }
+            
+            main {
+                padding: 1rem;
+            }
+            
+            .hero {
+                padding: 1rem 0;
+            }
+            
+            .hero h1 {
+                font-size: 1.75rem;
+            }
+            
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .project-card {
+            animation: fadeIn 0.5s ease-out forwards;
+            opacity: 0;
+        }
+
+        .project-card:nth-child(1) { animation-delay: 0.1s; }
+        .project-card:nth-child(2) { animation-delay: 0.2s; }
+        .project-card:nth-child(3) { animation-delay: 0.3s; }
+        .project-card:nth-child(4) { animation-delay: 0.4s; }
+        .project-card:nth-child(5) { animation-delay: 0.5s; }
+        .project-card:nth-child(6) { animation-delay: 0.6s; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <i class="fas fa-compass"></i>
+            <span>NEXORHUB</span>
+        </div>
+        <button class="theme-toggle" id="themeToggle">
+            <i class="fas fa-moon"></i>
+        </button>
+    </header>
+
+    <main>
+        <section class="hero">
+            <h1>WEB HUB</h1>
+            <p>NEXORHUB provides seamless access to all your favorite web destinations. Carefully curated selection of high-quality resources with Apple-inspired design aesthetics.</p>
+        </section>
+
+        <div class="filter-controls">
+            <button class="filter-btn active" data-filter="all">All Projects</button>
+            <button class="filter-btn" data-filter="new">New <i class="fas fa-star"></i></button>
+            <button class="filter-btn" data-filter="wip">In Progress <i class="fas fa-tools"></i></button>
+            <button class="filter-btn" data-filter="completed">Completed <i class="fas fa-check-circle"></i></button>
+        </div>
+
+        <div class="projects-grid" id="projectsGrid">
+            <!-- Project 1 -->
+            <div class="project-card" data-status="completed" data-category="productivity">
+                <div class="card-header">
+                    <img src="img/neox.png" alt="nexorhub">
+                    <span class="status-badge status-completed">Completed</span>
+                </div>
+                <div class="card-body">
+                    <h3>NEXORHUB</h3>
+                    <p>This is a Website for Tschuggmall, where you can see mensa and gamble very much!</p>
+                    <div class="tags">
+                        <span class="tag">MENSA</span>
+                        <span class="tag">DATA</span>
+                        <span class="tag">GAMBLING</span>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a href="https://web.nexorhub.com" class="visit-btn" target="_blank">
+                        <i class="fas fa-external-link-alt"></i> Visit
+                    </a>
+                </div>
+            </div>
+
+            <!-- Project 2 -->
+            <div class="project-card" data-status="completed" data-category="productivity">
+                <div class="card-header">
+                    <img src="img/cloud.png" alt="CLOUD">
+                    <span class="status-badge status-completed">Completed</span>
+                </div>
+                <div class="card-body">
+                    <h3>CLOUD</h3>
+                    <p>This is the Personal Cloud, made by NEXOR</p>
+                    <div class="tags">
+                        <span class="tag">Data</span>
+                        <span class="tag">Pictures</span>
+                        <span class="tag">Cloud</span>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a href="https://cloud.nexorhub.com" class="visit-btn" target="_blank">
+                        <i class="fas fa-external-link-alt"></i> Visit
+                    </a>
+                </div>
+            </div>
+
+            <!-- Project 3 -->
+            <div class="project-card" data-status="completed" data-category="productivity">
+                <div class="card-header">
+                    <img src="img/finanzen" alt="Finanzen">
+                    <span class="status-badge status-completed">Completed</span>
+                </div>
+                <div class="card-body">
+                    <h3>STOCKS</h3>
+                    <p>CYou can lookup all the stocks, they are live!!</p>
+                    <div class="tags">
+                        <span class="tag">Design</span>
+                        <span class="tag">Stocks</span>
+                        <span class="tag">Live</span>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a href="https://finanzen.nexorhub.com" class="visit-btn" target="_blank">
+                        <i class="fas fa-external-link-alt"></i> Explore
+                    </a>
+                </div>
+            </div>
+
+            <!-- Project 4 -->
+            <div class="project-card" data-status="completed" data-category="education">
+                <div class="card-header">
+                    <img src="https://source.unsplash.com/random/600x400/?learning,online" alt="E-Learning">
+                    <span class="status-badge status-completed">Completed</span>
+                </div>
+                <div class="card-body">
+                    <h3>Learning Platform</h3>
+                    <p>Interactive courses with progress tracking, certifications, and community features for professional development.</p>
+                    <div class="tags">
+                        <span class="tag">Education</span>
+                        <span class="tag">Courses</span>
+                        <span class="tag">Certification</span>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a href="https://example.com/learning" class="visit-btn" target="_blank">
+                        <i class="fas fa-external-link-alt"></i> Learn
+                    </a>
+                </div>
+            </div>
+
+            <!-- Project 5 -->
+            <div class="project-card" data-status="wip" data-category="productivity">
+                <div class="card-header">
+                    <img src="https://source.unsplash.com/random/600x400/?task,management" alt="Task Management">
+                    <span class="status-badge status-wip">In Progress</span>
+                </div>
+                <div class="card-body">
+                    <h3>Task Manager</h3>
+                    <p>Advanced project management tool with Gantt charts, team collaboration, and integration with popular productivity apps.</p>
+                    <div class="tags">
+                        <span class="tag">Productivity</span>
+                        <span class="tag">Tasks</span>
+                        <span class="tag">Management</span>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a href="https://example.com/tasks" class="visit-btn" target="_blank">
+                        <i class="fas fa-external-link-alt"></i> Try Beta
+                    </a>
+                </div>
+            </div>
+
+            <!-- Project 6 -->
+            <div class="project-card" data-status="new" data-category="development">
+                <div class="card-header">
+                    <img src="https://source.unsplash.com/random/600x400/?api,integration" alt="API Development">
+                    <span class="status-badge status-new">New</span>
+                </div>
+                <div class="card-body">
+                    <h3>API Gateway</h3>
+                    <p>Centralized API management platform with authentication, rate limiting, analytics, and developer portal.</p>
+                    <div class="tags">
+                        <span class="tag">Development</span>
+                        <span class="tag">API</span>
+                        <span class="tag">Microservices</span>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a href="https://example.com/api-gateway" class="visit-btn" target="_blank">
+                        <i class="fas fa-external-link-alt"></i> Docs
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="social-links">
+                <a href="https://github.com/plattnericus" aria-label="GitHub"><i class="fab fa-github"></i></a>
+                <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                <a href="#" aria-label="Medium"><i class="fab fa-medium"></i></a>
+            </div>
+            <p>NEXORHUB is a curated collection of premium web applications and resources, designed with attention to detail and user experience.</p>
+            <p class="copyright">© 2025 NEXORHUB. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('themeToggle');
+        const html = document.documentElement;
+        
+        // Check for saved theme preference or use preferred color scheme
+        const savedTheme = localStorage.getItem('theme') || 
+                         (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        
+        // Apply the saved theme
+        html.setAttribute('data-theme', savedTheme);
+        updateThemeIcon(savedTheme);
+        
+        // Toggle theme on button click
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon(newTheme);
+        });
+        
+        function updateThemeIcon(theme) {
+            const icon = themeToggle.querySelector('i');
+            icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        }
+        
+        // Filter functionality
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const projectCards = document.querySelectorAll('.project-card');
+        
+        filterButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Update active state on buttons
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                
+                const filter = button.dataset.filter;
+                
+                // Filter projects
+                projectCards.forEach(card => {
+                    if (filter === 'all' || card.dataset.status === filter) {
+                        card.style.display = 'flex';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        });
+        
+        // Smooth animations
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                document.body.classList.add('loaded');
+            }, 100);
+        });
+    </script>
+</body>
+</html>
