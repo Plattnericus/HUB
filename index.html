@@ -1,231 +1,591 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plattnericud - WebHub</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="styles.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="description" content="Der zentrale Hub für alle Plattnericus Projekte und Websites.">
+    <meta name="author" content="Plattnericus">
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+    
+    <title>Plattnericus | Hub</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <style>
+        /* ========================================
+        1. DESIGN TOKENS & GLOBAL
+        ========================================
+        */
+        :root {
+            --font-stack: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --font-weight-medium: 500;
+            --font-weight-bold: 700;
+
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xxl: 64px;
+            --container-width: 720px;
+            
+            --border-radius-md: 20px;
+            
+            --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+            --transition-fast: 0.2s;
+        }
+
+        /* THEMES (LIGHT/DARK) - Variables sind unverändert */
+        :root, [data-theme="light"] {
+            --bg-color: #f5f5f7; --bg-gradient: radial-gradient(circle at 50% 0%, #ffffff 0%, #f5f5f7 100%);
+            --text-primary: #1d1d1f; --text-secondary: #86868b;
+            --card-bg: rgba(255, 255, 255, 0.65); --card-border: rgba(255, 255, 255, 0.8);
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.05); --accent-color: #0071e3;
+            --accent-hover: #0077ED; --btn-secondary-bg: rgba(0, 0, 0, 0.05);
+            --btn-secondary-hover: rgba(0, 0, 0, 0.1); --switcher-bg: rgba(0,0,0,0.05);
+            --particle-color: rgba(0, 0, 0, 0.05);
+        }
+        [data-theme="dark"] {
+            --bg-color: #000000; --bg-gradient: radial-gradient(circle at 50% 0%, #1c1c1e 0%, #000000 100%);
+            --text-primary: #f5f5f7; --text-secondary: #86868b;
+            --card-bg: rgba(28, 28, 30, 0.65); --card-border: rgba(255, 255, 255, 0.1);
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); --accent-color: #2997ff;
+            --accent-hover: #4badff; --btn-secondary-bg: rgba(255, 255, 255, 0.1);
+            --btn-secondary-hover: rgba(255, 255, 255, 0.2); --switcher-bg: rgba(255,255,255,0.1);
+            --particle-color: rgba(255, 255, 255, 0.08);
+        }
+
+        /* Global Reset & Body */
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+        body { font-family: var(--font-stack); background-color: var(--bg-color); background-image: var(--bg-gradient); color: var(--text-primary); display: flex; flex-direction: column; align-items: center; min-height: 100vh; overflow-x: hidden; transition: background-color 0.4s ease, color 0.4s ease; }
+        #bg-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
+        a { text-decoration: none; color: inherit; cursor: pointer; }
+        .main-container { width: 100%; max-width: var(--container-width); padding: var(--spacing-xxl) var(--spacing-md); z-index: 1; perspective: 1000px; animation: fadeIn 1s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+        .profile-header { text-align: center; margin-bottom: 40px; }
+        
+        /* Profilbild-Anpassungen */
+        .avatar-container {
+            width: 120px; height: 120px; margin: 0 auto 16px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--bg-color), var(--card-bg)); padding: 4px;
+            box-shadow: var(--card-shadow); transition: transform 0.4s var(--ease-bounce);
+        }
+        .avatar-container:hover { transform: scale(1.05) rotate(5deg); }
+        .avatar {
+            width: 100%; height: 100%; border-radius: 50%; object-fit: cover;
+            border: 2px solid var(--card-border); background: var(--text-secondary);
+        }
+        .profile-name { font-size: 2.5rem; font-weight: var(--font-weight-bold); margin-bottom: 4px; letter-spacing: -0.02em; background: linear-gradient(to right, var(--text-primary), var(--text-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .profile-tagline { font-size: 1.1rem; color: var(--text-secondary); font-weight: var(--font-weight-medium); }
+
+        /* ========================================
+        2. GRID & CARD STYLES (Equal Height & Drag/Drop)
+        ========================================
+        */
+        .link-grid {
+            display: flex; /* Wechsel von Grid zu Flex für besseres Drag/Drop Handling im JS */
+            flex-wrap: wrap;
+            gap: 20px;
+            width: 100%;
+        }
+
+        .card-item { 
+            /* Wichtig für gleiche Höhe und 2-Spalten-Layout */
+            flex: 1 1 calc(50% - 10px); /* 50% minus die Hälfte des Gaps */
+            min-width: 280px; /* Mindestbreite für kleine Bildschirme */
+            height: auto; /* Die Höhe wird durch JS gesetzt, aber auto als Fallback */
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            position: relative;
+        }
+
+        /* Full Width Item (Das erste Element) */
+        .card-item[data-full-width="true"] {
+            flex: 1 1 100%;
+            min-width: 100%;
+        }
+
+        /* Drag & Drop Styles */
+        .card-item[draggable="true"] {
+            cursor: grab;
+            touch-action: none; /* Verhindert default Touch-Scrolling während des Ziehens */
+        }
+        .card-item.dragging {
+            opacity: 0.5;
+            transform: scale(0.95);
+        }
+        .card-item.drop-target-before::before,
+        .card-item.drop-target-after::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 4px;
+            background: var(--accent-color);
+            border-radius: 2px;
+            z-index: 10;
+        }
+        .card-item.drop-target-before::before { top: -10px; }
+        .card-item.drop-target-after::after { bottom: -10px; }
+
+
+        /* Mobile Anpassung */
+        @media (max-width: 600px) {
+            .card-item {
+                flex: 1 1 100%;
+            }
+        }
+        
+        .card {
+            display: flex; flex-direction: column;
+            padding: var(--spacing-lg);
+            background: var(--card-bg);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: var(--border-radius-md);
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+            height: 100%; /* Wichtig für die korrekte JS-Höhenanpassung */
+            position: relative;
+            transform-style: preserve-3d;
+        }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15); border-color: var(--accent-color); }
+        .card-body { display: flex; align-items: flex-start; margin-bottom: 20px; }
+        .card-icon { 
+            width: 44px; height: 44px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; 
+            background: var(--switcher-bg); border-radius: 12px; margin-right: 16px; 
+            color: var(--text-primary); transition: transform 0.4s var(--ease-bounce); 
+        }
+        /* NEUE CSS-Regel für Font Awesome Icons */
+        .card-icon i {
+            font-size: 20px;
+        }
+
+        .card:hover .card-icon { transform: scale(1.1) rotate(-5deg); color: var(--accent-color); }
+        .card-text { flex: 1; }
+        .card-title { font-size: 1.1rem; font-weight: var(--font-weight-bold); color: var(--text-primary); margin-bottom: 4px; }
+        .card-subtitle { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.4; }
+        .card-actions { display: flex; gap: 10px; margin-top: auto; }
+        .btn { display: flex; align-items: center; justify-content: center; padding: 10px 16px; border-radius: 10px; font-size: 0.9rem; font-weight: 600; transition: all 0.2s ease; text-align: center; }
+        .btn-visit { flex: 2; background-color: var(--accent-color); color: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .btn-visit:hover { background-color: var(--accent-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        .btn-code { flex: 1; background-color: var(--btn-secondary-bg); color: var(--text-primary); }
+        .btn-code:hover { background-color: var(--btn-secondary-hover); color: var(--accent-color); }
+        .btn svg { width: 18px; height: 18px; margin-right: 6px; }
+        .btn-code svg { margin-right: 0; }
+        .code-text { display: none; margin-left: 6px; }
+        @media (min-width: 400px) { .code-text { display: inline; } }
+        
+        /* Utility */
+        .theme-toggle-container { position: fixed; bottom: 24px; right: 24px; z-index: 100; }
+        .theme-toggle { width: 50px; height: 50px; border-radius: 50%; background: var(--card-bg); backdrop-filter: blur(20px); border: 1px solid var(--card-border); box-shadow: var(--card-shadow); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-primary); transition: transform 0.4s var(--ease-bounce); }
+        .theme-toggle:hover { transform: scale(1.1); }
+        .hidden { display: none; }
+        footer { margin-top: 60px; text-align: center; color: var(--text-secondary); font-size: 0.85rem; padding-bottom: 40px; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
 </head>
 <body>
-    <header>
-        <div class="logo">
-            <i class="fas fa-compass"></i>
-            <span>Plattnericus</span>
-        </div>
-        <button class="theme-toggle" id="themeToggle">
-            <i class="fas fa-moon"></i>
+
+    <canvas id="bg-canvas"></canvas>
+
+    <div class="theme-toggle-container">
+        <button class="theme-toggle" id="theme-switch" aria-label="Design wechseln">
+            <svg class="theme-icon sun-icon hidden" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+            <svg class="theme-icon moon-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
         </button>
-    </header>
+    </div>
 
-    <main>
-        <section class="hero">
-            <h1>WEB HUB</h1>
-        </section>
-
-        <div class="filter-controls">
-            <button class="filter-btn active" data-filter="all">All Projects</button>
-            <button class="filter-btn" data-filter="new">New <i class="fas fa-star"></i></button>
-            <button class="filter-btn" data-filter="wip">In Progress <i class="fas fa-tools"></i></button>
-            <button class="filter-btn" data-filter="completed">Completed <i class="fas fa-check-circle"></i></button>
-        </div>
-
-        <div class="projects-grid" id="projectsGrid">
-            <!-- Project 1 -->
-            <div class="project-card" data-status="completed" data-category="hub">
-                <div class="card-header">
-                    <img src="img/hub.png" alt="hub">
-                    <span class="status-badge status-completed">Completed</span>
-                </div>
-                <div class="card-body">
-                    <h3>HUB</h3>
-                    <p>This is a Website for where you can see all of my Websites! (This Website)</p>
-                    <div class="tags">
-                        <span class="tag">HUB</span>
-                        <span class="tag">Website</span>
-                        <span class="tag">Good</span>
-                    </div>
-                </div>
-                <div class="card-footer">
-                    <a href="https://plattnericus.dev" class="visit-btn">
-                        <i class="fas fa-external-link-alt"></i> Visit
-                    </a>
-                </div>
-            </div>
-            <!-- Project 2 
-
-            <div class="project-card" data-status="completed" data-category="productivity">
-                <div class="card-header">
-                    <img src="img/portfolio.png" alt="Portfolio">
-                    <span class="status-badge status-completed">Completed</span>
-                </div>
-                <div class="card-body">
-                    <h3>PORTFOLIO</h3>
-                    <p>This is a Website for my Portfolio so you can see all my Information!</p>
-                    <div class="tags">
-                        <span class="tag">INFO</span>
-                        <span class="tag">PORTFOLIO</span>
-                        <span class="tag">MYSELF</span>
-                    </div>
-                </div>
-                <div class="card-footer">
-                    <a href="https://portfolio.nexorhub.com" class="visit-btn">
-                        <i class="fas fa-external-link-alt"></i> Visit
-                    </a>
-                </div>
-            </div>
-            -->
-            <!-- Project 2 -->
-            <div class="project-card" data-status="completed" data-category="productivity">
-                <div class="card-header">
-                    <img src="img/neox.png" alt="nexorhub">
-                    <span class="status-badge status-completed">Completed</span>
-                </div>
-                <div class="card-body">
-                    <h3>Mensa</h3>
-                    <p>This is a Website for Tschuggmall, where you can see mensa and gamble very much!</p>
-                    <div class="tags">
-                        <span class="tag">MENSA</span>
-                        <span class="tag">DATA</span>
-                        <span class="tag">EATING</span>
-                    </div>
-                </div>
-                <div class="card-footer">
-                    <a href="https://mensa.plattnericus.dev" class="visit-btn">
-                        <i class="fas fa-external-link-alt"></i> Visit
-                    </a>
-                </div>
-            </div>
-
-            <!-- Project 3 -->
-         <div class="project-card" data-status="new" data-category="minesweeper">
-                <div class="card-header">
-                    <img src="img/minesweeper.png" alt="minesweeper">
-                    <span class="status-badge status-new">New</span>
-                </div>
-                <div class="card-body">
-                    <h3>Minesweeper</h3>
-                    <p>this is a minesweeper project with Node.Js | You can even play the Game with a Friend!</p>
-                    <div class="tags">
-                        <span class="tag">Game</span>
-                        <span class="tag">Bombs</span>
-                        <span class="tag">Coop</span>
-                    </div>
-                </div>
-                <div class="card-footer">
-                    <a href="https://minesweeper.plattnericus.dev" class="visit-btn">
-                        <i class="fas fa-external-link-alt"></i> Visti
-                    </a>
-                </div>
-            </div>
-            
-            <!-- Project 4 -->
-            <div class="project-card" data-status="completed" data-category="productivity">
-                <div class="card-header">
-                    <img src="img/cloud.png" alt="CLOUD">
-                    <span class="status-badge status-completed">Completed</span>
-                </div>
-                <div class="card-body">
-                    <h3>CLOUD</h3>
-                    <p>This is the Personal Cloud, made by NEXOR</p>
-                    <div class="tags">
-                        <span class="tag">Data</span>
-                        <span class="tag">Pictures</span>
-                        <span class="tag">Cloud</span>
-                    </div>
-                </div>
-                <div class="card-footer">
-                    <a href="https://cloud.plattnericus.dev" class="visit-btn">
-                        <i class="fas fa-external-link-alt"></i> Visit
-                    </a>
-                </div>
-            </div>
-
-            <!-- Project 5 -->
-            <div class="project-card" data-status="completed" data-category="productivity">
-                <div class="card-header">
-                    <img src="img/finanzen.png" alt="Finanzen">
-                    <span class="status-badge status-completed">Completed</span>
-                </div>
-                <div class="card-body">
-                    <h3>STOCKS</h3>
-                    <p>You can lookup all the stocks, they are live!!</p>
-                    <div class="tags">
-                        <span class="tag">Design</span>
-                        <span class="tag">Stocks</span>
-                        <span class="tag">Live</span>
-                    </div>
-                </div>
-                <div class="card-footer">
-                    <a href="https://finanzen.plattnericus.dev" class="visit-btn">
-                        <i class="fas fa-external-link-alt"></i> Explore
-                    </a>
-                </div>
-            </div>
-            
-            <!-- Project 
-            <div class="project-card" data-status="wip" data-category="gym">
-                <div class="card-header">
-                    <img src="img/gym.png" alt="Gym picture">
-                    <span class="status-badge status-wip">In Progress</span>
-                </div>
-                <div class="card-body">
-                    <h3>GYM Stats</h3>
-                    <p>This is a Website of a random Guy who is writing his GYM stats in here! ~Sieder</p>
-                    <div class="tags">
-                        <span class="tag">Discipline</span>
-                        <span class="tag">Sieda</span>
-                        <span class="tag">GYM</span>
-                    </div>
-                </div>
-                <div class="card-footer">
-                    <a href="https://gym.plattnericus.dev" class="visit-btn">
-                        <i class="fas fa-external-link-alt"></i> Read More
-                    </a>
-                </div>
-            </div>
-         -->
-            
-        <!-- Project 7 
-        <div class="project-card" data-status="new" data-category="averons-tale">
-                <div class="card-header">
-                    <img src="img/averon.png" alt="Averon's Tale">
-                    <span class="status-badge status-new">New</span>
-                </div>
-                <div class="card-body">
-                    <h3>Averon's Tale</h3>
-                    <p>Here you can see all the Websites for my Game: Averon's Tale</p>
-                    <div class="tags">
-                        <span class="tag">Game</span>
-                        <span class="tag">Login</span>
-                        <span class="tag">Community</span>
-                    </div>
-                </div>
-                <div class="card-footer">
-                    <a href="game.html" class="visit-btn">
-                        <i class="fas fa-external-link-alt"></i> See More
-                    </a>
-                </div>
-            </div>
-            -->
+    <main class="main-container">
         
+        <header class="profile-header">
+            <div class="avatar-container">
+                <img src="./pfp.jpg" alt="Plattnericus Profilbild" class="avatar">
+            </div>
+            <h1 class="profile-name">Plattnericus <svg style="width:24px; height:24px; vertical-align:middle; color:var(--accent-color);" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg></h1>
+            <p class="profile-tagline">Web Development Hub & Web HUB</p>
+        </header>
+
+        <div class="link-grid" id="link-grid">
+
+            <div class="card-item tilt-card" draggable="true" data-full-width="true">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="card-icon">
+                            <i class="fa-solid fa-gamepad"></i>
+                        </div>
+                        <div class="card-text">
+                            <div class="card-title">Minesweeper</div>
+                            <div class="card-subtitle">Minesweeper Website made with Love</div>
+                        </div>
+                    </div>
+                    <div class="card-actions">
+                        <a href="https://minesweeper.plattnericus.dev" target="_blank" class="btn btn-visit">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                            Open Website
+                        </a>
+                        <a href="https://github.com/Ryhox/minesweeper.ryhox.dev" target="_blank" class="btn btn-code" title="Quellcode ansehen">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+                            <span class="code-text">Source</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-item tilt-card" draggable="true">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="card-icon">
+                            <i class="fa-solid fa-cloud"></i>
+                        </div>
+                        <div class="card-text">
+                            <div class="card-title">Cloud</div>
+                            <div class="card-subtitle">My own selfhosted cloud!</div>
+                        </div>
+                    </div>
+                    <div class="card-actions">
+                        <a href="cloud.plattnericus.dev" target="_blank" class="btn btn-visit">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                            Visit
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-item tilt-card" draggable="true">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="card-icon">
+                            <i class="fa-solid fa-chart-line"></i>
+                        </div>
+                        <div class="card-text">
+                            <div class="card-title">Stocks</div>
+                            <div class="card-subtitle">A Page where you can check your Stocks</div>
+                        </div>
+                    </div>
+                    <div class="card-actions">
+                        <a href="https://finanzen.plattnericus.dev" class="btn btn-visit">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                            Demo
+                        </a>
+                        <a href="https://github.com/plattnericus/Finanzen" class="btn btn-code">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-item tilt-card" draggable="true">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="card-icon">
+                            <i class="fa-solid fa-gear"></i>
+                        </div>
+                        <div class="card-text">
+                            <div class="card-title">This Website</div>
+                            <div class="card-subtitle">A Hub where you can see all my Projects.</div>
+                        </div>
+                    </div>
+                    <div class="card-actions">
+                        <a href="#" class="btn btn-visit">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                            Open
+                        </a>
+                        <a href="https://github.com/plattnericus/HUB" class="btn btn-code">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-item tilt-card" draggable="true">
+                 <div class="card">
+                    <div class="card-body">
+                        <div class="card-icon">
+                            <i class="fa-solid fa-envelope"></i>
+                        </div>
+                        <div class="card-text">
+                            <div class="card-title">Contact</div>
+                            <div class="card-subtitle">Let us work together!</div>
+                        </div>
+                    </div>
+                    <div class="card-actions">
+                        <a href="mailto:mail@plattnericus.dev" class="btn btn-visit" style="background: var(--text-primary); color: var(--bg-color);">
+                            Write an E-Mail
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-item tilt-card" draggable="true">
+                <div class="card">
+                   <div class="card-body">
+                       <div class="card-icon">
+                           <i class="fa-brands fa-github"></i>
+                       </div>
+                       <div class="card-text">
+                           <div class="card-title">GitHub Profil</div>
+                           <div class="card-subtitle">Search all my Repositories</div>
+                       </div>
+                   </div>
+                   <div class="card-actions">
+                       <a href="https://github.com/plattnericus" target="_blank" class="btn btn-code" style="flex:1;">
+                           Visit my Profile
+                       </a>
+                   </div>
+               </div>
+           </div>
+
         </div>
+
+        <footer>
+            &copy; <span id="year"></span> Plattnericus.dev
+        </footer>
+
     </main>
 
-    <footer>
-        <div class="footer-content">
-            <div class="social-links">
-                <a href="https://github.com/plattnericus" aria-label="GitHub"><i class="fab fa-github"></i></a>
-                <a href="https://discordapp.com/users/nexor.nga" aria-label="Discord"><i class="fab fa-discord"></i></a>
-                <a href="mailto:mail@plattnerius.dev" aria-label="Mail"><i class="fas fa-envelope"></i></a>
-            </div>
-            <p>Plattnericus.dev is a curated collection of premium web applications and resources, designed with attention to detail and user experience.</p>
-            <p class="copyright">© 2025 PLATTNERICUS. All rights reserved.</p>
-        </div>
-    </footer>
+    <script>
+        // --- JS LOGIC (Unverändert) ---
+        (function() {
+            'use strict';
 
-    <script src="script.js"></script>
+            const config = { 
+                particleCount: 50, 
+                connectionDistance: 150, 
+                mouseDistance: 200, 
+                darkColor: 'rgba(255,255,255,', 
+                lightColor: 'rgba(0,0,0,',
+                dampingFactor: 0.99 
+            };
+            
+            const state = { 
+                isDark: false, 
+                mouseX: 0, 
+                mouseY: 0,
+                isDragging: false 
+            };
+
+            const themeBtn = document.getElementById('theme-switch');
+            const sunIcon = document.querySelector('.sun-icon');
+            const moonIcon = document.querySelector('.moon-icon');
+            const canvas = document.getElementById('bg-canvas');
+            const ctx = canvas.getContext('2d');
+            const grid = document.getElementById('link-grid');
+            
+            document.getElementById('year').textContent = new Date().getFullYear();
+
+            // --- 1. INITIALISIERUNG & THEME ---
+            function init() {
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+                const storedTheme = localStorage.getItem('theme');
+                if (storedTheme === 'dark' || (!storedTheme && prefersDark.matches)) setTheme(true);
+                else setTheme(false);
+                prefersDark.addEventListener('change', e => { if (!localStorage.getItem('theme')) setTheme(e.matches); });
+                themeBtn.addEventListener('click', toggleTheme);
+
+                resizeCanvas();
+                window.addEventListener('resize', () => { resizeCanvas(); equalizeCardHeights(); });
+                initParticles();
+                animateParticles();
+                
+                window.addEventListener('mousemove', e => { state.mouseX = e.clientX; state.mouseY = e.clientY; });
+                
+                initTilt();
+                equalizeCardHeights(); 
+                initDragAndDrop();
+            }
+
+            function setTheme(isDark) {
+                state.isDark = isDark;
+                document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+                sunIcon.classList.toggle('hidden', !isDark);
+                moonIcon.classList.toggle('hidden', isDark);
+            }
+
+            function toggleTheme() {
+                setTheme(!state.isDark);
+                localStorage.setItem('theme', state.isDark ? 'dark' : 'light');
+            }
+
+            // --- 2. GLEICHE HÖHE FUNKTION (Equal Height) ---
+            function equalizeCardHeights() {
+                const items = Array.from(grid.querySelectorAll('.card-item:not([data-full-width="true"])'));
+                if (window.innerWidth <= 600 || items.length < 2) {
+                    items.forEach(item => item.style.height = 'auto');
+                    return;
+                }
+
+                items.forEach(item => item.style.height = 'auto');
+
+                let maxRowHeight = 0;
+                let currentRowItems = [];
+
+                for (let i = 0; i < items.length; i++) {
+                    const item = items[i];
+                    currentRowItems.push(item);
+                    
+                    maxRowHeight = Math.max(maxRowHeight, item.offsetHeight);
+
+                    if (currentRowItems.length === 2 || i === items.length - 1) {
+                        currentRowItems.forEach(rowItem => {
+                            rowItem.style.height = `${maxRowHeight}px`;
+                        });
+                        currentRowItems = [];
+                        maxRowHeight = 0;
+                    }
+                }
+            }
+
+
+            // --- 3. PARTICLE ENGINE MIT DÄMPFUNG ---
+            let particles = [];
+            class Particle {
+                constructor(x, y) {
+                    this.x = x || Math.random() * canvas.width; 
+                    this.y = y || Math.random() * canvas.height;
+                    this.vx = (Math.random() - 0.5) * 0.5; 
+                    this.vy = (Math.random() - 0.5) * 0.5;
+                    this.size = Math.random() * 2 + 1;
+                }
+                update() {
+                    this.vx *= config.dampingFactor;
+                    this.vy *= config.dampingFactor;
+
+                    this.x += this.vx; 
+                    this.y += this.vy;
+
+                    if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                    if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+
+                    const dx = state.mouseX - this.x, dy = state.mouseY - this.y;
+                    const dist = Math.sqrt(dx*dx + dy*dy);
+                    
+                    if (dist < config.mouseDistance) {
+                        const force = (config.mouseDistance - dist) / config.mouseDistance;
+                        this.vx -= (dx/dist) * force * 1.5; 
+                        this.vy -= (dy/dist) * force * 1.5;
+                    }
+                }
+                draw() {
+                    const base = state.isDark ? config.darkColor : config.lightColor;
+                    ctx.fillStyle = base + '0.3)';
+                    ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill();
+                }
+            }
+
+            function initParticles() { 
+                particles = []; 
+                for(let i=0; i<config.particleCount; i++) particles.push(new Particle()); 
+            }
+            function resizeCanvas() { 
+                canvas.width = window.innerWidth; 
+                canvas.height = window.innerHeight; 
+            }
+
+            function animateParticles() {
+                ctx.clearRect(0,0, canvas.width, canvas.height);
+                const base = state.isDark ? config.darkColor : config.lightColor;
+                particles.forEach((p, i) => {
+                    p.update(); 
+                    p.draw();
+                    for (let j=i; j<particles.length; j++) {
+                        const dx = p.x - particles[j].x, dy = p.y - particles[j].y;
+                        const dist = Math.sqrt(dx*dx + dy*dy);
+                        if (dist < config.connectionDistance) {
+                            ctx.beginPath();
+                            ctx.strokeStyle = base + (1 - dist/config.connectionDistance)*0.15 + ')';
+                            ctx.lineWidth = 1;
+                            ctx.moveTo(p.x, p.y); ctx.lineTo(particles[j].x, particles[j].y); ctx.stroke();
+                        }
+                    }
+                });
+                requestAnimationFrame(animateParticles);
+            }
+
+            // --- 4. DRAG AND DROP (Native HTML5 API) ---
+            let draggedItem = null;
+
+            function initDragAndDrop() {
+                const items = grid.querySelectorAll('.card-item');
+                items.forEach(item => {
+                    item.addEventListener('dragstart', handleDragStart);
+                    item.addEventListener('dragend', handleDragEnd);
+                    item.addEventListener('dragover', handleDragOver);
+                    item.addEventListener('dragleave', handleDragLeave);
+                    item.addEventListener('drop', handleDrop);
+                });
+            }
+
+            function handleDragStart(e) {
+                if (window.innerWidth > 600) {
+                    draggedItem = this;
+                    setTimeout(() => this.classList.add('dragging'), 0);
+                    e.dataTransfer.effectAllowed = 'move';
+                } else {
+                    e.preventDefault();
+                }
+            }
+
+            function handleDragEnd() {
+                this.classList.remove('dragging');
+                draggedItem = null;
+                grid.querySelectorAll('.card-item').forEach(item => {
+                    item.classList.remove('drop-target-before', 'drop-target-after');
+                });
+                equalizeCardHeights(); 
+            }
+
+            function handleDragOver(e) {
+                e.preventDefault(); 
+                if (this === draggedItem || !draggedItem) return;
+
+                const rect = this.getBoundingClientRect();
+                const isBefore = e.clientY < rect.top + rect.height / 2;
+
+                grid.querySelectorAll('.card-item').forEach(item => {
+                    item.classList.remove('drop-target-before', 'drop-target-after');
+                });
+
+                if (isBefore) {
+                    this.classList.add('drop-target-before');
+                } else {
+                    this.classList.add('drop-target-after');
+                }
+            }
+
+            function handleDragLeave() {
+                this.classList.remove('drop-target-before', 'drop-target-after');
+            }
+
+            function handleDrop(e) {
+                e.preventDefault();
+                if (this === draggedItem || !draggedItem) return;
+
+                const rect = this.getBoundingClientRect();
+                const isBefore = e.clientY < rect.top + rect.height / 2;
+
+                if (isBefore) {
+                    grid.insertBefore(draggedItem, this);
+                } else {
+                    grid.insertBefore(draggedItem, this.nextElementSibling);
+                }
+            }
+            
+            // --- 5. 3D TILT EFFECT ---
+            function initTilt() {
+                document.querySelectorAll('.tilt-card').forEach(c => {
+                    c.addEventListener('mousemove', e => {
+                        const card = c.querySelector('.card');
+                        const rect = c.getBoundingClientRect();
+                        const x = e.clientX - rect.left, y = e.clientY - rect.top;
+                        const rx = ((y - rect.height/2) / rect.height/2) * -5;
+                        const ry = ((x - rect.width/2) / rect.width/2) * 5;
+                        card.style.transform = `perspective(1000px) rotateX(${rx}deg) rotateY(${ry}deg) scale(1.01)`;
+                    });
+                    c.addEventListener('mouseleave', e => {
+                        e.currentTarget.querySelector('.card').style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale(1)';
+                    });
+                });
+            }
+
+            init();
+        })();
+    </script>
 </body>
 </html>
-
-

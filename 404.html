@@ -1,152 +1,324 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PLATTNERICUS - Page Not Found</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="styles.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="description" content="Fehler 404: Seite nicht gefunden. Plattnericus Hub.">
+    <meta name="author" content="Plattnericus">
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+    
+    <title>404 | Seite nicht gefunden</title>
+
     <style>
-        .error-container {
-            text-align: center;
-            padding: 4rem 2rem;
-            max-width: 800px;
-            margin: 0 auto;
+        /* ========================================
+        1. DESIGN TOKENS
+        ========================================
+        */
+        :root {
+            --font-stack: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --font-weight-medium: 500;
+            --font-weight-bold: 700;
+
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xxl: 64px;
+            --container-width: 720px;
+            
+            --border-radius-md: 20px;
+            
+            --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+            --transition-fast: 0.2s;
         }
 
+        /* LIGHT MODE */
+        :root, [data-theme="light"] {
+            --bg-color: #f5f5f7; --bg-gradient: radial-gradient(circle at 50% 0%, #ffffff 0%, #f5f5f7 100%);
+            --text-primary: #1d1d1f; --text-secondary: #86868b;
+            --card-bg: rgba(255, 255, 255, 0.65); --card-border: rgba(255, 255, 255, 0.8);
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.05); --accent-color: #0071e3;
+            --accent-hover: #0077ED; --btn-secondary-bg: rgba(0, 0, 0, 0.05);
+            --btn-secondary-hover: rgba(0, 0, 0, 0.1); --switcher-bg: rgba(0,0,0,0.05);
+            --particle-color: rgba(0, 0, 0, 0.05);
+        }
+
+        /* DARK MODE */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #000000; --bg-gradient: radial-gradient(circle at 50% 0%, #1c1c1e 0%, #000000 100%);
+                --text-primary: #f5f5f7; --text-secondary: #86868b;
+                --card-bg: rgba(28, 28, 30, 0.65); --card-border: rgba(255, 255, 255, 0.1);
+                --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); --accent-color: #2997ff;
+                --accent-hover: #4badff; --btn-secondary-bg: rgba(255, 255, 255, 0.1);
+                --btn-secondary-hover: rgba(255, 255, 255, 0.2); --switcher-bg: rgba(255,255,255,0.1);
+                --particle-color: rgba(255, 255, 255, 0.08);
+            }
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #000000; --bg-gradient: radial-gradient(circle at 50% 0%, #1c1c1e 0%, #000000 100%);
+            --text-primary: #f5f5f7; --text-secondary: #86868b;
+            --card-bg: rgba(28, 28, 30, 0.65); --card-border: rgba(255, 255, 255, 0.1);
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); --accent-color: #2997ff;
+            --accent-hover: #4badff; --btn-secondary-bg: rgba(255, 255, 255, 0.1);
+            --btn-secondary-hover: rgba(255, 255, 255, 0.2); --switcher-bg: rgba(255,255,255,0.1);
+            --particle-color: rgba(255, 255, 255, 0.08);
+        }
+
+        /* ========================================
+        2. GLOBAL & LAYOUT
+        ========================================
+        */
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+        body {
+            font-family: var(--font-stack);
+            background-color: var(--bg-color);
+            background-image: var(--bg-gradient);
+            color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center; /* NEU: Zentriert den Inhalt vertikal */
+            min-height: 100vh;
+            overflow-x: hidden;
+            transition: background-color 0.4s ease, color 0.4s ease;
+        }
+
+        #bg-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
+        a { text-decoration: none; color: inherit; cursor: pointer; }
+        
+        .main-container {
+            width: 100%;
+            max-width: var(--container-width);
+            padding: var(--spacing-xxl) var(--spacing-md);
+            z-index: 1;
+            text-align: center; /* NEU: Text zentral */
+            animation: fadeIn 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        }
+        
+        /* ========================================
+        3. 404 SPEZIFISCHE STYLES
+        ========================================
+        */
         .error-code {
-            font-size: 6rem;
-            font-weight: 700;
-            color: var(--primary-color);
-            margin-bottom: 1rem;
-            line-height: 1;
+            font-size: 8rem;
+            font-weight: 900;
+            color: var(--text-primary);
+            opacity: 0.1; /* Subtil im Hintergrund */
+            margin-bottom: -30px;
+            letter-spacing: -0.05em;
+            text-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            transition: color 0.4s ease, opacity 0.4s ease;
         }
 
         .error-title {
             font-size: 2.5rem;
-            margin-bottom: 1.5rem;
+            font-weight: var(--font-weight-bold);
+            margin-bottom: 16px;
+            letter-spacing: -0.02em;
         }
 
         .error-message {
+            font-size: 1.1rem;
             color: var(--text-secondary);
-            font-size: 1.25rem;
-            margin-bottom: 2.5rem;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
+            margin-bottom: 40px;
+            line-height: 1.6;
         }
 
-        .error-actions {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .error-btn {
-            padding: 0.75rem 1.5rem;
-            border-radius: var(--border-radius);
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            font-weight: 500;
-            cursor: pointer;
-            transition: var(--transition);
+        .home-button {
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
-            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            background-color: var(--accent-color);
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background-color 0.2s ease, transform 0.2s ease;
+            box-shadow: 0 4px 12px rgba(0, 113, 227, 0.3);
+        }
+        .home-button:hover {
+            background-color: var(--accent-hover);
+            transform: translateY(-1px);
+        }
+        .home-button svg {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
         }
 
-        .error-btn:hover {
-            background: var(--primary-hover);
-            transform: translateY(-2px);
+        /* ========================================
+        4. UTILITIES & ANIMATIONS
+        ========================================
+        */
+        .theme-toggle-container { position: fixed; bottom: 24px; right: 24px; z-index: 100; }
+        .theme-toggle {
+            width: 50px; height: 50px; border-radius: 50%;
+            background: var(--card-bg); backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            box-shadow: var(--card-shadow);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; color: var(--text-primary);
+            transition: transform 0.4s var(--ease-bounce);
         }
-
-        .error-btn.secondary {
-            background: var(--bg-tertiary);
-        }
-
-        .error-btn.secondary:hover {
-            background: var(--bg-secondary);
-        }
-
-        @media (max-width: 768px) {
-            .error-code {
-                font-size: 4rem;
-            }
-            
-            .error-title {
-                font-size: 2rem;
-            }
-            
-            .error-message {
-                font-size: 1.1rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .error-code {
-                font-size: 3rem;
-            }
-            
-            .error-title {
-                font-size: 1.75rem;
-            }
-            
-            .error-actions {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            .error-btn {
-                width: 100%;
-                max-width: 250px;
-                justify-content: center;
-            }
-        }
+        .theme-toggle:hover { transform: scale(1.1); }
+        .hidden { display: none; }
+        footer { position: fixed; bottom: 20px; left: 20px; color: var(--text-secondary); font-size: 0.85rem; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
-    <header>
-        <div class="logo">
-            <i class="fas fa-compass"></i>
-            <span>PLATTNERICUS.DEV</span>
-        </div>
-        <button class="theme-toggle" id="themeToggle">
-            <i class="fas fa-moon"></i>
-        </button>
-    </header>
 
-    <main>
-        <div class="error-container">
-            <div class="error-code">404</div>
-            <h1 class="error-title">Page Not Found</h1>
-            <p class="error-message">
-                The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.
-            </p>
-            <div class="error-actions">
-                <a href="index.html" class="error-btn">
-                    <i class="fas fa-home"></i> Go to Homepage
-                </a>
-                <a href="mailto:mail@plattnericus.dev" class="error-btn secondary">
-                    <i class="fas fa-envelope"></i> Contact Support
-                </a>
-            </div>
-        </div>
+    <canvas id="bg-canvas"></canvas>
+
+    <div class="theme-toggle-container">
+        <button class="theme-toggle" id="theme-switch" aria-label="Design wechseln">
+            <svg class="theme-icon sun-icon hidden" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+            <svg class="theme-icon moon-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        </button>
+    </div>
+
+    <main class="main-container">
+        <div class="error-code">404</div>
+        <h1 class="error-title">Seite nicht gefunden</h1>
+        <p class="error-message">
+            Ups! Die von Ihnen gesuchte Seite existiert leider nicht oder wurde verschoben. Kein Problem, gehen wir einfach zurück zum Hub.
+        </p>
+        <a href="index.html" class="home-button">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+            Zum Plattnericus Hub
+        </a>
     </main>
 
     <footer>
-        <div class="footer-content">
-            <div class="social-links">
-                <a href="https://github.com/plattnericus" aria-label="GitHub"><i class="fab fa-github"></i></a>
-                <a href="https://discordapp.com/users/nexor.nga" aria-label="Discord"><i class="fab fa-discord"></i></a>
-                <a href="mailto:mail@plattnericus.dev" aria-label="Mail"><i class="fas fa-envelope"></i></a>
-            </div>
-            <p class="copyright">© 2025 PLATTNERICUS. All rights reserved.</p>
-        </div>
+        &copy; <span id="year"></span> Plattnericus.dev
     </footer>
 
-    <script src="script.js"></script>
+    <script>
+        // --- JS LOGIC (Minimiert für 404-Seite) ---
+        (function() {
+            'use strict';
+
+            const config = { 
+                particleCount: 50, 
+                connectionDistance: 150, 
+                mouseDistance: 200, 
+                darkColor: 'rgba(255,255,255,', 
+                lightColor: 'rgba(0,0,0,',
+                dampingFactor: 0.99 // Beruhigende Partikel
+            };
+            
+            const state = { 
+                isDark: false, 
+                mouseX: 0, 
+                mouseY: 0
+            };
+
+            const themeBtn = document.getElementById('theme-switch');
+            const sunIcon = document.querySelector('.sun-icon');
+            const moonIcon = document.querySelector('.moon-icon');
+            const canvas = document.getElementById('bg-canvas');
+            const ctx = canvas.getContext('2d');
+            
+            document.getElementById('year').textContent = new Date().getFullYear();
+
+            // Initialisierung & Theme Setup
+            function init() {
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+                const storedTheme = localStorage.getItem('theme');
+                if (storedTheme === 'dark' || (!storedTheme && prefersDark.matches)) setTheme(true);
+                else setTheme(false);
+                prefersDark.addEventListener('change', e => { if (!localStorage.getItem('theme')) setTheme(e.matches); });
+                themeBtn.addEventListener('click', toggleTheme);
+
+                resizeCanvas();
+                window.addEventListener('resize', resizeCanvas);
+                initParticles();
+                animateParticles();
+                
+                window.addEventListener('mousemove', e => { state.mouseX = e.clientX; state.mouseY = e.clientY; });
+            }
+
+            function setTheme(isDark) {
+                state.isDark = isDark;
+                document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+                sunIcon.classList.toggle('hidden', !isDark);
+                moonIcon.classList.toggle('hidden', isDark);
+            }
+
+            function toggleTheme() {
+                setTheme(!state.isDark);
+                localStorage.setItem('theme', state.isDark ? 'dark' : 'light');
+            }
+
+            // Particle Engine mit Dämpfung (Unverändert)
+            let particles = [];
+            class Particle {
+                constructor() {
+                    this.x = Math.random() * canvas.width; 
+                    this.y = Math.random() * canvas.height;
+                    this.vx = (Math.random() - 0.5) * 0.5; 
+                    this.vy = (Math.random() - 0.5) * 0.5;
+                    this.size = Math.random() * 2 + 1;
+                }
+                update() {
+                    this.vx *= config.dampingFactor;
+                    this.vy *= config.dampingFactor;
+
+                    this.x += this.vx; 
+                    this.y += this.vy;
+
+                    if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                    if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+
+                    const dx = state.mouseX - this.x, dy = state.mouseY - this.y;
+                    const dist = Math.sqrt(dx*dx + dy*dy);
+                    
+                    if (dist < config.mouseDistance) {
+                        const force = (config.mouseDistance - dist) / config.mouseDistance;
+                        this.vx -= (dx/dist) * force * 1.5; 
+                        this.vy -= (dy/dist) * force * 1.5;
+                    }
+                }
+                draw() {
+                    const base = state.isDark ? config.darkColor : config.lightColor;
+                    ctx.fillStyle = base + '0.3)';
+                    ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill();
+                }
+            }
+
+            function initParticles() { 
+                particles = []; 
+                for(let i=0; i<config.particleCount; i++) particles.push(new Particle()); 
+            }
+            function resizeCanvas() { 
+                canvas.width = window.innerWidth; 
+                canvas.height = window.innerHeight; 
+            }
+
+            function animateParticles() {
+                ctx.clearRect(0,0, canvas.width, canvas.height);
+                const base = state.isDark ? config.darkColor : config.lightColor;
+                particles.forEach((p, i) => {
+                    p.update(); 
+                    p.draw();
+                    for (let j=i; j<particles.length; j++) {
+                        const dx = p.x - particles[j].x, dy = p.y - particles[j].y;
+                        const dist = Math.sqrt(dx*dx + dy*dy);
+                        if (dist < config.connectionDistance) {
+                            ctx.beginPath();
+                            ctx.strokeStyle = base + (1 - dist/config.connectionDistance)*0.15 + ')';
+                            ctx.lineWidth = 1;
+                            ctx.moveTo(p.x, p.y); ctx.lineTo(particles[j].x, particles[j].y); ctx.stroke();
+                        }
+                    }
+                });
+                requestAnimationFrame(animateParticles);
+            }
+
+            init();
+        })();
+    </script>
 </body>
 </html>
