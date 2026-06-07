@@ -1,0 +1,37 @@
+{
+  "name": "plattnericus-hub",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Interactive low-poly 3D island portfolio hub for Plattnericus.",
+  "scripts": {
+    "dev": "next dev -p 3067",
+    "build": "next build",
+    "start": "next start -p 3067",
+    "lint": "next lint",
+    "serve": "npx serve out"
+  },
+  "dependencies": {
+    "@react-three/drei": "^10.0.6",
+    "@react-three/fiber": "^9.1.2",
+    "@react-three/postprocessing": "^3.0.4",
+    "detect-gpu": "^5.0.70",
+    "gsap": "^3.12.7",
+    "howler": "^2.2.4",
+    "next": "^15.2.4",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "three": "^0.175.0"
+  },
+  "devDependencies": {
+    "@gltf-transform/cli": "^4.1.1",
+    "@gltf-transform/core": "^4.1.1",
+    "@gltf-transform/extensions": "^4.1.1",
+    "@gltf-transform/functions": "^4.1.1",
+    "@types/howler": "^2.2.12",
+    "@types/node": "^22.13.10",
+    "@types/react": "^19.0.12",
+    "@types/react-dom": "^19.0.4",
+    "@types/three": "^0.175.0",
+    "typescript": "^5.8.2"
+  }
+}
