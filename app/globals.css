@@ -1,6 +1,7 @@
 :root {
   --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
     "Helvetica Neue", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-serif: ui-serif, "New York", "Iowan Old Style", Georgia, "Times New Roman", serif;
 
   /* Apple-ish palette */
   --bg: #0a0e14;
@@ -381,13 +382,28 @@ button {
 .overlay__panel {
   position: relative;
   width: min(420px, 100%);
-  background: var(--panel);
-  border: 1px solid var(--panel-border);
+  background:
+    linear-gradient(
+      152deg,
+      rgba(255, 255, 255, 0.14) 0%,
+      rgba(255, 255, 255, 0.05) 24%,
+      rgba(255, 255, 255, 0.02) 100%
+    ),
+    rgba(22, 24, 28, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 28px;
   padding: 28px;
-  box-shadow: var(--shadow-lg);
-  backdrop-filter: blur(40px) saturate(180%);
-  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  max-height: calc(100svh - 48px);
+  overflow: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  isolation: isolate;
+  box-shadow:
+    var(--shadow-lg),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(44px) saturate(190%);
+  -webkit-backdrop-filter: blur(44px) saturate(190%);
   transform: translateY(40px) scale(0.96);
   opacity: 0;
   transition: transform 0.5s var(--ease-spring), opacity 0.4s var(--ease-out);
@@ -399,24 +415,44 @@ button {
   opacity: 1;
 }
 
+/* Soft specular sheen sweeping across the top of the glass. */
+.overlay__glow {
+  position: absolute;
+  inset: -40% -10% auto -10%;
+  height: 70%;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    60% 100% at 30% 0%,
+    color-mix(in srgb, var(--accent, #ffffff) 26%, transparent) 0%,
+    transparent 70%
+  );
+  opacity: 0.7;
+  filter: blur(8px);
+}
+
 .overlay__close {
   position: absolute;
   top: 18px;
   right: 18px;
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   color: var(--ink-dim);
-  transition: background 0.2s, color 0.2s;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: background 0.2s, color 0.2s, transform 0.2s var(--ease-out);
 }
 
 .overlay__close:hover {
   background: rgba(255, 255, 255, 0.18);
   color: var(--ink);
+  transform: rotate(90deg);
 }
 
 .overlay__badge {
@@ -531,13 +567,156 @@ button {
 }
 
 .btn--secondary {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   color: var(--ink);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .btn--secondary:hover {
-  background: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.24);
   transform: translateY(-1px);
+}
+
+.btn--primary {
+  box-shadow: 0 10px 30px -8px var(--accent, rgba(10, 132, 255, 0.6));
+}
+
+/* ===== "Who I am" profile panel (wide, two-column liquid glass) ===== */
+.overlay__panel--profile {
+  width: min(880px, 100%);
+  margin: auto; /* centre within the flex overlay regardless of alignment */
+  padding: clamp(28px, 4vw, 46px);
+}
+
+.profile {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(22px, 3vw, 38px);
+}
+
+@media (min-width: 760px) {
+  .profile {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.95fr);
+    align-items: center;
+  }
+}
+
+.profile__eyebrow {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: var(--accent, var(--ink-dim));
+  margin-bottom: 16px;
+}
+
+.profile__title {
+  font-size: clamp(40px, 6vw, 60px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 0.98;
+  background: linear-gradient(180deg, #ffffff 0%, #c4ccd6 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.profile__title--serif {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.profile__tagline {
+  margin-top: 10px;
+  font-size: clamp(15px, 1.8vw, 17px);
+  color: var(--ink-dim);
+}
+
+.profile__desc {
+  margin-top: 22px;
+  font-size: 15.5px;
+  line-height: 1.62;
+  color: #d8dade;
+  max-width: 46ch;
+}
+
+.profile__highlight {
+  margin-top: 18px;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--accent, var(--ink));
+}
+
+.profile__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 26px;
+}
+
+.profile__links .btn {
+  height: 44px;
+  padding: 0 20px;
+  border-radius: 13px;
+  flex: 0 0 auto;
+}
+
+/* Side rail of label/value facts, each its own glass row. */
+.profile__facts {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+}
+
+.fact {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 15px 18px;
+  border-radius: 16px;
+  background:
+    linear-gradient(
+      150deg,
+      rgba(255, 255, 255, 0.1) 0%,
+      rgba(255, 255, 255, 0.03) 60%
+    ),
+    rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(14px) saturate(150%);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  transition: transform 0.3s var(--ease-out), border-color 0.3s var(--ease-out),
+    background 0.3s var(--ease-out);
+}
+
+.fact:hover {
+  transform: translateX(3px);
+  border-color: color-mix(in srgb, var(--accent, #fff) 45%, rgba(255, 255, 255, 0.1));
+}
+
+.fact__label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.fact__value {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 550;
+  color: var(--ink);
+  text-align: right;
 }
 
 /* ===== 3D tooltip (drei Html) ===== */

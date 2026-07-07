@@ -26,6 +26,12 @@ export interface ProjectLink {
   kind: "primary" | "secondary";
 }
 
+// A single label/value fact shown in the "Who I am" panel side rail.
+export interface Fact {
+  label: string;
+  value: string;
+}
+
 // Anything that can be shown in the detail overlay (projects and portfolio frames).
 export interface OverlayItem {
   title: string;
@@ -35,6 +41,11 @@ export interface OverlayItem {
   tags?: string[];
   links?: ProjectLink[];
   body?: string[];
+  // Optional rich-profile extras (used by the "About me" frame for a wide,
+  // two-column liquid-glass layout instead of the standard detail panel).
+  serif?: boolean; // render the title in an elegant serif
+  highlight?: string; // a single accented pull-quote line
+  facts?: Fact[]; // label/value rows shown in a glass side rail
 }
 
 export interface Project {
@@ -252,22 +263,34 @@ export interface Frame {
   size: [number, number];
   links?: ProjectLink[];
   body?: string[]; // optional bullet lines shown in the overlay
+  serif?: boolean;
+  highlight?: string;
+  facts?: Fact[];
 }
 
 export const FRAMES: Frame[] = [
   {
     id: "about",
-    title: "About me",
-    tagline: "Who's behind all this",
-    accent: "#0a84ff",
+    title: "Plattnericus",
+    tagline: "Apprentice developer & relentless self-hoster",
+    accent: "#30d158",
     position: [1.6, 1.85, -3.32],
     size: [1.1, 1.4],
+    serif: true,
     description:
-      "Hi, I'm Felix — known online as Plattnericus. I'm an apprentice developer from South Tyrol who got hooked on building things for the web and never really stopped. Most of what you see here started as a 'wonder if I could…' and turned into a weekend (or three).",
-    body: [
-      "Currently: finishing my apprenticeship (BFS FI).",
-      "Happiest when: self-hosting something that probably didn't need self-hosting.",
-      "Always up for: a good side-project and a worse idea.",
+      "Hi, I'm Felix — known online as Plattnericus. An apprentice developer from South Tyrol, Italy who got hooked on building things for the web and never really stopped. Most of this starts as a “wonder if I could…” and turns into a weekend (or three).",
+    highlight: "1986 BMW M3 (E30) — the good kind of legacy code.",
+    facts: [
+      { label: "Role", value: "Apprentice dev (BFS FI)" },
+      { label: "Based", value: "South Tyrol, Italy" },
+      { label: "Stack", value: "TS · React · Next · R3F" },
+      { label: "Infra", value: "Proxmox · Docker · self-hosted" },
+      { label: "Ride", value: "BMW M3 E30 (1986)" },
+    ],
+    links: [
+      { label: "GitHub", href: "https://github.com/Plattnericus", kind: "primary" },
+      { label: "E-mail", href: "mailto:mail@plattnericus.dev", kind: "secondary" },
+      { label: "plattnericus.dev", href: "https://plattnericus.dev", kind: "secondary" },
     ],
   },
   {
